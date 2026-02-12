@@ -26,39 +26,7 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
                       Logger logger)
             : base(configService, diskProvider, remotePathMappingService, localizationService, logger)
         {
-            _ = Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                    try
-                    {
-                        foreach (var item in queue.Values)
-                        {
-                            logger.Info("Checking status of download {0} - {1}", item.ClientItem.DownloadId, item.ClientItem.Title);
 
-                            var statusUrl = Helpers.BuildUrl(Settings.BaseUrl, "download/status", new Dictionary<string, string> { { "downloadId", item.ClientItem.DownloadId } });
-
-                            var response = await HttpClient.GetAsync(statusUrl);
-                            response.EnsureSuccessStatusCode();
-
-                            var data = await response.Content.ReadFromJsonAsync<QobuzDownloadStatusResponse>();
-
-                            item.ClientItem.RemainingSize = data.ItemsToDownload - data.DownloadedItems;
-
-                            if (data.IsDownloading)
-                                item.ClientItem.Status = DownloadItemStatus.Downloading;
-
-                            if (data.Complete)
-                                item.ClientItem.Status = DownloadItemStatus.Completed;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex, "Error updating download statuses");
-                    }
-                }
-            });
         }
 
         public override string Protocol => nameof(SquidWTFQobuzDownloadProtocol);
@@ -67,12 +35,17 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
 
         private static readonly ConcurrentDictionary<string, DownloadItem> queue = new();
 
-        private HttpClient _httpClient;
-        private HttpClient HttpClient => _httpClient ??= new HttpClient() { BaseAddress = new Uri(Settings.BaseUrl) };
+        private static HttpClient HttpClient { get; } = new HttpClient();
 
         public override IEnumerable<DownloadClientItem> GetItems()
         {
-            return queue.Values.Select(x => x.ClientItem);
+            DownloadItemStatus[] validStatuses = [DownloadItemStatus.Queued, DownloadItemStatus.Downloading, DownloadItemStatus.Completed];
+
+            return queue
+                .Values
+                .Select(x => x.ClientItem)
+                .Where(x => validStatuses.Contains(x.Status))
+                .ToList();
         }
 
         public override void RemoveItem(DownloadClientItem item, bool deleteData)
@@ -99,6 +72,8 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
                 IndexerData = remoteAlbum
             });
 
+            StartStatusUpdatesTask(_logger, Settings.BaseUrl);
+
             return downloadItem.DownloadId;
         }
 
@@ -124,6 +99,7 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
                 Title = x.Release.Title,
                 RemainingSize = x.Release.Size,
                 TotalSize = x.Release.Size,
+                DownloadClientInfo = DownloadClientItemClientInfo.FromDownloadClient(this, false),
                 Status = DownloadItemStatus.Queued,
                 OutputPath = new OsPath(Settings.DownloadPath),
                 CanMoveFiles = true,
@@ -137,6 +113,56 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
         {
             public DownloadClientItem ClientItem { get; set; }
             public RemoteAlbum IndexerData { get; set; }
+        }
+
+        private static readonly object statusUpdatesTaskLock = new object();
+        private static Task statusUpdatesTask;
+
+        private static void StartStatusUpdatesTask(ILogger logger, string baseUrl)
+        {
+            lock (statusUpdatesTaskLock)
+            {
+                if (statusUpdatesTask != null && !statusUpdatesTask.IsCompleted)
+                    return;
+
+                statusUpdatesTask = Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            var queueItems = queue.Values.Where(x => x.ClientItem.Status == DownloadItemStatus.Downloading || x.ClientItem.Status == DownloadItemStatus.Queued).ToArray();
+                            if (queueItems.Length == 0)
+                                break;
+
+                            foreach (var item in queueItems)
+                            {
+                                logger.Info("Checking status of download {0} - {1}", item.ClientItem.DownloadId, item.ClientItem.Title);
+
+                                var statusUrl = Helpers.BuildUrl(baseUrl, "download/status", new Dictionary<string, string> { { "downloadId", item.ClientItem.DownloadId } });
+
+                                var response = await HttpClient.GetAsync(statusUrl);
+                                response.EnsureSuccessStatusCode();
+
+                                var data = await response.Content.ReadFromJsonAsync<QobuzDownloadStatusResponse>();
+
+                                item.ClientItem.RemainingSize = data.ItemsToDownload - data.DownloadedItems;
+
+                                if (data.IsDownloading)
+                                    item.ClientItem.Status = DownloadItemStatus.Downloading;
+
+                                if (data.Complete)
+                                    item.ClientItem.Status = DownloadItemStatus.Completed;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.Error(ex, "Error updating download statuses");
+                        }
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                    }
+                });
+            }
         }
     }
 }
