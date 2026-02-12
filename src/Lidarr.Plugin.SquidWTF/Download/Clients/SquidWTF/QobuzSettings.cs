@@ -20,7 +20,7 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
         [FieldDefinition(1, Label = "SquidWTF Qobuz API URL", HelpText = "Base API URL for SquidWTF Qobuz.")]
         public string BaseUrl { get; set; } = "";
 
-        [FieldDefinition(2, Label = "Download folder", HelpText = "Root folder the downloads will be placed.")]
+        [FieldDefinition(2, Label = "Download folder", HelpText = "Root folder the downloads will be placed.", Type = FieldType.Path)]
         public string DownloadPath { get; set; } = "";
 
         public NzbDroneValidationResult Validate()
