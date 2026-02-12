@@ -34,12 +34,13 @@ namespace NzbDrone.Core.Indexers.SquidWTF
                 InfoUrl = x.InfoUrl,
                 PublishDate = x.ReleaseDate,
                 DownloadProtocol = nameof(SquidWTFQobuzDownloadProtocol),
-                Title = $"{x.Artist} - {x.Album} ({x.ReleaseDate.Year}) ({x.TrackCount} tracks)"
+                Codec = "FLAC",
+                Title = $"{x.Artist} - {x.Album} ({x.ReleaseDate.Year})"
             };
 
             if (x.Explicit)
             {
-                result.Title += " [E]";
+                result.Title += " [Explicit]";
             }
 
             return result;
