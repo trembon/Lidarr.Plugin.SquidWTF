@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -101,7 +102,7 @@ namespace NzbDrone.Core.Download.Clients.SquidWTF
                 TotalSize = x.Release.Size,
                 DownloadClientInfo = DownloadClientItemClientInfo.FromDownloadClient(this, false),
                 Status = DownloadItemStatus.Queued,
-                OutputPath = new OsPath(Settings.DownloadPath),
+                OutputPath = new OsPath(Path.Combine(Settings.DownloadPath, data.DownloadFolder)),
                 CanMoveFiles = true,
                 CanBeRemoved = true,
             };
