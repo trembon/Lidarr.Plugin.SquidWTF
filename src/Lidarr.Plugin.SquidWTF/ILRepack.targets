@@ -3,8 +3,7 @@
     <!-- ILRepack -->
     <Target Name="ILRepacker" AfterTargets="Build">
         <ItemGroup>
-			<InputAssemblies Include="$(OutputPath)\Lidarr.Plugin.Tidal.dll" />
-			<InputAssemblies Include="$(OutputPath)\TidalSharp.dll" />
+			<InputAssemblies Include="$(OutputPath)\Lidarr.Plugin.SquidWTF.dll" />
 			<InputAssemblies Include="$(OutputPath)\Newtonsoft.Json.dll" />
 			<InputAssemblies Include="$(OutputPath)\TagLibSharp.dll" />
 		</ItemGroup>

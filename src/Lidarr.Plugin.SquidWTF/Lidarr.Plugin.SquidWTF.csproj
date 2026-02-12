@@ -6,6 +6,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<AdditionalFiles Remove="..\stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
