@@ -4,7 +4,7 @@ using NzbDrone.Common.Http;
 using NzbDrone.Core.IndexerSearch.Definitions;
 using NzbDrone.Plugin.SquidWTF;
 
-namespace NzbDrone.Core.Indexers.Tidal
+namespace NzbDrone.Core.Indexers.SquidWTF
 {
     public class QobuzRequestGenerator : IIndexerRequestGenerator
     {

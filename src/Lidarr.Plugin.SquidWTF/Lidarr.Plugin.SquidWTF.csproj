@@ -27,8 +27,4 @@
 		<BackupFile>$(SourceFile).bak</BackupFile>
 	</PropertyGroup>
 
-	<Target Condition="'$(Configuration)' == 'Debug'" Name="PostBuild" AfterTargets="ILRepacker">
-		<Exec ContinueOnError="true" Command="COPY &quot;$(TargetPath)&quot; &quot;C:\ProgramData\Lidarr\plugins\TrevTV\Lidarr.Plugin.Tidal&quot;" />
-	</Target>
-
 </Project>

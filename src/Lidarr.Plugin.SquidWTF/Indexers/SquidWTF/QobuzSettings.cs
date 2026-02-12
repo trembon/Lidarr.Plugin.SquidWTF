@@ -2,7 +2,7 @@ using FluentValidation;
 using NzbDrone.Core.Annotations;
 using NzbDrone.Core.Validation;
 
-namespace NzbDrone.Core.Indexers.Tidal
+namespace NzbDrone.Core.Indexers.SquidWTF
 {
     public class QobuzIndexerSettingsValidator : AbstractValidator<QobuzIndexerSettings>
     {

@@ -4,7 +4,7 @@ using NzbDrone.Common.Http;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Parser;
 
-namespace NzbDrone.Core.Indexers.Tidal
+namespace NzbDrone.Core.Indexers.SquidWTF
 {
     public class Qobuz : HttpIndexerBase<QobuzIndexerSettings>
     {

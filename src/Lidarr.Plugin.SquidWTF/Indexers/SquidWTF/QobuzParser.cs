@@ -5,7 +5,7 @@ using NzbDrone.Common.Http;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Plugin.SquidWTF;
 
-namespace NzbDrone.Core.Indexers.Tidal
+namespace NzbDrone.Core.Indexers.SquidWTF
 {
     public class QobuzParser : IParseIndexerResponse
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace NzbDrone.Core.Indexers.Tidal;
+namespace NzbDrone.Core.Indexers.SquidWTF;
 
 public class QobuzSearchResponse
 {
