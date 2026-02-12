@@ -35,6 +35,7 @@ namespace NzbDrone.Core.Indexers.SquidWTF
                 PublishDate = x.ReleaseDate,
                 DownloadProtocol = nameof(SquidWTFQobuzDownloadProtocol),
                 Codec = "FLAC",
+                Container = "24bit Lossless",
                 Title = $"{x.Artist} - {x.Album} ({x.ReleaseDate.Year})"
             };
 
